@@ -86,7 +86,7 @@ function getGithubToken(callback) {
         credentials
       )
     );
-    // attempt to create an access token for our application
+    // attempt to specify scope for our application
     github.authorization.create({
       scopes: ['user', 'public_repo', 'repo', 'repo:status'],
       note: 'git-set-state, the command-line tool to set state for a commit in an issue'
