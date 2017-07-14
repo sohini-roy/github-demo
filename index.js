@@ -15,23 +15,15 @@ var prefs = new Preferences('git-set-state');
 var github = new GitHubApi({
   version: '3.0.0'
 });
-// console.log(
-//   chalk.yellow(
-//     figlet.textSync('Ginit', { horizontalLayout: 'full' })
-//   )
-// );
 
 var username = '';
-// function to get credentials to create the OAuth token
-function getGithubCredentials(callback) {
-}
 
 // func to check if we already have an access token
 function getGithubToken(callback) {
-  var prefs = new Preferences('git-set-state');
-
-  if (prefs.github && prefs.github.token) {
-    return callback(null, prefs.github.token);
+  // var prefs = new Preferences('git-set-state');
+  //
+  // if (prefs.github && prefs.github.token) {
+  //   return callback(null, prefs.github.token);
   }
   // Fetch token
   function getGithubCredentials(function(credentials) {
@@ -88,15 +80,14 @@ function getGithubToken(callback) {
         status.stop();
         if ( err ) {
           console.log(err);
-          return callback( err );
         }
         if (res.token) {
           prefs.github = {
             token : res.token
           };
-          return callback(null, res.token);
+          // return callback(null, res.token);
         }
-        return callback();
+        // return callback();
       });
     });
   });
@@ -116,7 +107,7 @@ function createStatus(callback) {
         if (value.length) {
           return true;
         } else {
-          return 'Please enter the name of your repository';
+          return 'Please enter name of your repository';
         }
       }
     },
@@ -146,19 +137,20 @@ function createStatus(callback) {
     status.start();
 
     var data = {
-      pr_url : "github.com/" + username + "",
+      owner : username,
+      repo :  answers.name,
+      target_url : "github.com/" + username + "/" + answers.name + "/pull/" + answers.pull_request_number,
       description : answers.description,
-      private : (answers.visibility === 'private')
+      state : answers.state
     };
 
-    github.repos.create(
+    github.pullRequest.createStatus(
       data,
       function(err, res) {
         status.stop();
         if (err) {
-          return callback(err);
+          console.log(err);
         }
-        return callback(null, res.ssh_url);
       }
     );
   });
