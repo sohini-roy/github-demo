@@ -21,7 +21,8 @@ var github = new GitHubApi({
 //   )
 // );
 
-// function to get credentials
+var username = '';
+// function to get credentials to create the OAuth token
 function getGithubCredentials(callback) {
   var questions = [
     {
@@ -50,13 +51,10 @@ function getGithubCredentials(callback) {
     }
   ];
 
-  inquirer.prompt(questions).then(callback);
+  inquirer.prompt(questions).then(function(answers){
+    username = answers.username;
+  });
 }
-
-// returns credentials
-getGithubCredentials(function(){
-  console.log(arguments);
-});
 
 // func to check if we already have an access token
 function getGithubToken(callback) {
@@ -67,12 +65,6 @@ function getGithubToken(callback) {
   }
 
   // Fetch token
-    getGithubCredentials(function(credentials) {
-      ...
-    });
-  }
-
-  // authenticate with Github
   getGithubCredentials(function(credentials) {
     // Creating a spinner
     var status = new Spinner('Authenticating you, please wait...');
@@ -88,12 +80,13 @@ function getGithubToken(callback) {
     );
     // attempt to specify scope for our application
     github.authorization.create({
-      scopes: ['user', 'public_repo', 'repo', 'repo:status'],
+      scopes: ['public_repo', 'repo', 'repo:status'],
       note: 'git-set-state, the command-line tool to set state for a commit in an issue'
     }, function(err, res) {
       // stop the spinner on success
       status.stop();
       if ( err ) {
+        console.log(err);
         return callback( err );
       }
       if (res.token) {
@@ -105,3 +98,64 @@ function getGithubToken(callback) {
       return callback();
     });
   });
+
+  // function trying to set state for the Pull Request
+  function createStatus(callback) {
+    var argv = require('minimist')(process.argv.slice(2));
+
+    var questions = [
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Enter name of your repository:',
+        default: argv._[0] || files.getCurrentDirectoryBase(),
+        validate: function( value ) {
+          if (value.length) {
+            return true;
+          } else {
+            return 'Please enter the name of your repository';
+          }
+        }
+      },
+      {
+        type: 'input',
+        name: 'pull_request_number',
+        message: 'Enter the '
+      },
+      {
+        type: 'input',
+        name: 'state',
+        message: 'Success/Error/Pending/Failure:',
+        choices: [ 'success', 'error', 'pending', 'failure' ],
+        default: 'pending'
+      },
+      {
+        type: 'input',
+        name: 'description',
+        default: argv._[1] || null,
+        message: 'Optionally enter a description for the Pull Request:'
+      }
+    ];
+
+    inquirer.prompt(questions).then(function(answers) {
+      var status = new Spinner('Creating repository...');
+      status.start();
+
+      var data = {
+        name : answers.name,
+        description : answers.description,
+        private : (answers.visibility === 'private')
+      };
+
+      github.repos.create(
+        data,
+        function(err, res) {
+          status.stop();
+          if (err) {
+            return callback(err);
+          }
+          return callback(null, res.ssh_url);
+        }
+      );
+    });
+  }
