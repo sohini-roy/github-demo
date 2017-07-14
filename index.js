@@ -66,7 +66,7 @@ function getGithubToken(callback) {
 
     inquirer.prompt(questions).then(function(answers){
       username = answers.username;
-      
+
       // Creating a spinner
       var status = new Spinner('Authenticating you, please wait...');
       status.start();
@@ -123,7 +123,7 @@ function createStatus(callback) {
     {
       type: 'input',
       name: 'pull_request_number',
-      default: argv._[1] || null,
+      default: argv._[1],
       message: 'Enter the Pull Request Number'
     },
     {
@@ -146,7 +146,7 @@ function createStatus(callback) {
     status.start();
 
     var data = {
-      name : answers.name,
+      pr_url : "github.com/" + username + "",
       description : answers.description,
       private : (answers.visibility === 'private')
     };
