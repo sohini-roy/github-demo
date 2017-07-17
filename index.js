@@ -19,15 +19,16 @@ var github = new GitHubApi({
 var username = '';
 
 // func to check if we already have an access token
-function getGithubToken(callback) {
+// function getGithubToken() {
   // var prefs = new Preferences('git-set-state');
   //
   // if (prefs.github && prefs.github.token) {
   //   return callback(null, prefs.github.token);
-  }
+  // }
   // Fetch token
-  function getGithubCredentials(function(credentials) {
+  function getGithubCredentials() {
     var argv = require('minimist')(process.argv.slice(2));
+    console.log('l31');
 
     var questions = [
       {
@@ -58,7 +59,7 @@ function getGithubToken(callback) {
 
     inquirer.prompt(questions).then(function(answers){
       username = answers.username;
-
+      console.log('l64');
       // Creating a spinner
       var status = new Spinner('Authenticating you, please wait...');
       status.start();
@@ -90,11 +91,11 @@ function getGithubToken(callback) {
         // return callback();
       });
     });
-  });
-}
+  }
+// }
 
 // function trying to set state for the Pull Request
-function createStatus(callback) {
+function createStatus() {
   var argv = require('minimist')(process.argv.slice(4));
 
   var questions = [
@@ -138,13 +139,13 @@ function createStatus(callback) {
 
     var data = {
       owner : username,
-      repo :  answers.name,
+      repo : answers.name,
       target_url : "github.com/" + username + "/" + answers.name + "/pull/" + answers.pull_request_number,
       description : answers.description,
       state : answers.state
     };
 
-    github.pullRequest.createStatus(
+    github.repos.createStatus(
       data,
       function(err, res) {
         status.stop();
@@ -155,3 +156,7 @@ function createStatus(callback) {
     );
   });
 }
+
+getGithubCredentials();
+console.log('l163');
+createStatus();
