@@ -5,7 +5,7 @@ var figlet      = require('figlet');
 var inquirer    = require('inquirer');
 var Preferences = require('preferences');
 var Spinner     = CLI.Spinner;
-var GitHubApi   = require('github');
+var GitHubApi   = require('node-github');
 var _           = require('lodash');
 var git         = require('simple-git')();
 var touch       = require('touch');
@@ -15,6 +15,7 @@ var prefs = new Preferences('git-set-state');
 var github = new GitHubApi({
   version: '3.0.0'
 });
+var config = require('./config');
 
 // function trying to set state for the Pull Request
 function createStatus() {
@@ -34,20 +35,8 @@ function createStatus() {
       }
     },
     {
-      name: 'password',
-      type: 'password',
-      message: 'Enter your password:',
-      validate: function(value) {
-        if (value.length) {
-          return true;
-        } else {
-          return 'Please enter your password';
-        }
-      }
-    },
-    {
       type: 'input',
-      name: 'name',
+      name: 'repoName',
       message: 'Enter name of your repository:',
       default: argv._[0] || files.getCurrentDirectoryBase(),
       validate: function( value ) {
@@ -83,17 +72,16 @@ function createStatus() {
     // Creating a spinner
     var status = new Spinner('Authenticating you, please wait...');
     status.start();
+
     //  basic authentication prior to trying to obtain an OAuth token
-    // github.authenticate(
-    //   _.extend(
-    //     {
-    //       type: 'basic',
-    //     },
-    //     // credentials
-    //   )
-    // );
+    github.authenticate({
+      type: "token",
+      token: config.githubToken,
+      username: answers.username
+    });
+
     // attempt to specify scope for our application
-    github.authorization.create({
+    github.authorization.getOrCreateAuthorizationForApp({
       scopes: ['public_repo', 'repo', 'repo:status'],
       note: 'git-set-state, the command-line tool to set state for a commit in an issue'
     }, function(err, res) {
@@ -102,22 +90,34 @@ function createStatus() {
       if ( err ) {
         console.log(err);
       }
-      if (res.token) {
-        prefs.github = {
-          token : res.token
-        };
-        // return callback(null, res.token);
-      }
-      // return callback();
     });
+
+     var prParams = {
+       owner: answers.username,
+       repo: answers.repoName,
+       number: answers.pull_request_number
+     }
+
+     github,pullreRequests.get({
+       prParams,
+       function(err, res){
+         if(err){
+           console.log(err);
+         }
+         else{
+           console.log(res);
+         }
+       }
+     });
+
     var statusInPr = new Spinner('Creating status...');
     statusInPr.start();
 
     var data = {
       sha : 123,
       owner : answers.username,
-      repo : answers.name,
-      target_url : "github.com/" + answers.username + "/" + answers.name + "/pull/" + answers.pull_request_number,
+      repo : answers.repoName,
+      target_url : "github.com/" + answers.username + "/" + answers.repoName + "/pull/" + answers.pull_request_number,
       description : answers.description,
       state : answers.state
     };
