@@ -1,21 +1,12 @@
-var chalk       = require('chalk');
-var clear       = require('clear');
 var CLI         = require('clui');
-var figlet      = require('figlet');
 var inquirer    = require('inquirer');
-var Preferences = require('preferences');
 var Spinner     = CLI.Spinner;
 var GitHubApi   = require('github');
-var _           = require('lodash');
-var git         = require('simple-git')();
-var touch       = require('touch');
-var fs          = require('fs');
-var files = require('./lib/files');
-var prefs = new Preferences('git-set-state');
-var github = new GitHubApi({
+var request     = require('request');
+var files       = require('./lib/files');
+var github      = new GitHubApi({
   version: '3.0.0'
 });
-var config = require('./config');
 
 // function trying to set state for the Pull Request
 function createStatus() {
@@ -23,52 +14,32 @@ function createStatus() {
 
   var questions = [
     {
-      name: 'username',
+      name: 'input',
       type: 'input',
-      message: 'Enter your Github username or e-mail address:',
+      message: 'Syntax: github_token=yourToken <state> <url_of_pr> <description:optional>',
       validate: function( value ) {
         if (value.length) {
           return true;
         } else {
-          return 'Please enter your username or e-mail address';
+          return ;
         }
       }
-    },
-    {
-      type: 'input',
-      name: 'repoName',
-      message: 'Enter name of your repository:',
-      default: argv._[0] || files.getCurrentDirectoryBase(),
-      validate: function( value ) {
-        if (value.length) {
-          return true;
-        } else {
-          return 'Please enter name of your repository';
-        }
-      }
-    },
-    {
-      type: 'input',
-      name: 'pull_request_number',
-      default: argv._[1],
-      message: 'Enter the Pull Request Number'
-    },
-    {
-      type: 'input',
-      name: 'state',
-      message: 'Set the state - Success/Error/Pending/Failure:',
-      choices: [ 'success', 'error', 'pending', 'failure' ],
-      default: 'pending'
-    },
-    {
-      type: 'input',
-      name: 'description',
-      default: argv._[2] || null,
-      message: 'Optionally enter a description for the Pull Request:'
     }
   ];
 
   inquirer.prompt(questions).then(function(answers) {
+    var inputString = [];
+    inputString = answers.input.split(' ');
+    get_token = inputString[0].split('=');
+    user_token = get_token[1];
+    state = inputString[1];
+    prUrl = inputString[2];
+    url = inputString[2].split('/');
+    repoOwner = url[2];
+    repository = url[3];
+    pullRequestNumber = url[5];
+    des = inputString[3];
+
     // Creating a spinner
     var status = new Spinner('Authenticating you, please wait...');
     status.start();
@@ -76,36 +47,44 @@ function createStatus() {
     //  basic authentication prior to trying to obtain an OAuth token
     github.authenticate({
       type: "token",
-      token: config.githubToken,
-      username: answers.username
+      token: user_token,
     });
 
     // attempt to specify scope for our application
-    github.authorization.getOrCreateAuthorizationForApp({
-      scopes: ['public_repo', 'repo', 'repo:status'],
+    github.authorization.create({
+      scopes: ['public_repo', 'repo', 'repo:status', 'user'],
       note: 'git-set-state, the command-line tool to set state for a commit in an issue'
     }, function(err, res) {
       // stop the spinner on success
       status.stop();
+      github.users.get({
+        function(err, res){
+          console.log("enter into get comment");
+          console.log(res);
+          if(err){
+            console.log('access error');
+            console.log(err);
+          }
+        }
+      });
       if ( err ) {
+        console.log('authorization error');
         console.log(err);
       }
     });
 
      var prParams = {
-       owner: answers.username,
-       repo: answers.repoName,
-       number: answers.pull_request_number
+       owner: repoOwner,
+       repo: repository,
+       number: pullRequestNumber
      }
 
-     github,pullreRequests.get({
+     github.pullRequests.get({
        prParams,
        function(err, res){
+         console.log(res);
          if(err){
            console.log(err);
-         }
-         else{
-           console.log(res);
          }
        }
      });
@@ -114,12 +93,12 @@ function createStatus() {
     statusInPr.start();
 
     var data = {
-      sha : 123,
-      owner : answers.username,
-      repo : answers.repoName,
-      target_url : "github.com/" + answers.username + "/" + answers.repoName + "/pull/" + answers.pull_request_number,
-      description : answers.description,
-      state : answers.state
+      // sha : 123,
+      owner : repoOwner,
+      repo : repository,
+      target_url : prUrl,
+      description : des,
+      state : state
     };
 
     github.repos.createStatus(
