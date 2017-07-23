@@ -73,21 +73,23 @@ function createStatus() {
       }
     });
 
-     var prParams = {
-       owner: repoOwner,
-       repo: repository,
-       number: pullRequestNumber
-     }
+    //  var prParams = {
+    //    owner: repoOwner,
+    //    repo: repository,
+    //    number: pullRequestNumber
+    //  }
 
-     github.pullRequests.get({
-       prParams,
-       function(err, res){
-         console.log(res);
-         if(err){
-           console.log(err);
-         }
-       }
-     });
+    //  github.pullRequests.get({
+    //    prParams,
+    //    function(err, res){
+    //      console.log(res);
+    //      if(err){
+    //        console.log(err);
+    //      }
+    //    }
+    //  });
+
+    request.get('https://github.com/' + repos)
 
     var statusInPr = new Spinner('Creating status...');
     statusInPr.start();
