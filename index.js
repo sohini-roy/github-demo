@@ -30,16 +30,16 @@ function createStatus() {
 
   inquirer.prompt(questions).then(function(answers) {
     var inputString = [];
-    inputString = answers.input.split(' ');
-    get_token = inputString[0].split('=');
-    user_token = get_token[1];
-    state = inputString[1];
-    prUrl = inputString[2];
-    url = inputString[2].split('/');
-    repoOwner = url[3];
-    repository = url[4];
-    pullRequestNumber = url[6];
-    des = inputString[3];
+    var inputString = answers.input.split(' ');
+    var get_token = inputString[0].split('=');
+    var user_token = get_token[1];
+    var state = inputString[1];
+    var prUrl = inputString[2];
+    var url = inputString[2].split('/');
+    var repoOwner = url[3];
+    var repository = url[4];
+    var pullRequestNumber = url[6];
+    var des = inputString[3];
     var sha = '';
     var data = {};
 
