@@ -37,6 +37,7 @@ function createStatus() {
     var prUrl = inputString[2];
     var url = inputString[2].split('/');
     var repoOwner = url[3];
+    console.log(repoOwner);
     var repository = url[4];
     var pullRequestNumber = url[6];
     var des = inputString[3];
@@ -93,6 +94,7 @@ function createStatus() {
         var info = JSON.parse(body);
         sha = info.head.sha;
       }
+      console.log(repoOwner);
       var data = {
         sha : sha,
         owner : repoOwner,
