@@ -59,29 +59,6 @@ function createStatus() {
       token: user_token
     });
 
-    // attempt to specify scope for our application
-    github.authorization.create({
-      scopes: ['public_repo', 'repo', 'repo:status', 'user'],
-      note: 'git-set-state, the command-line tool to set state for a commit in an issue'
-    }, function(err, res) {
-      // stop the spinner on success
-      status.stop();
-      // github.users.get({
-      //   function(err, res){
-      //     console.log("enter into get comment");
-      //     console.log(res);
-      //     if(err){
-      //       console.log('access error');
-      //       console.log(err);
-      //     }
-      //   }
-      // });
-      if ( err ) {
-        console.log('authorization error');
-        console.log(err);
-      }
-    });
-
     var options = {
       url: 'https://api.github.com/repos/' + repoOwner + '/' + repository + '/pulls/' + pullRequestNumber,
       headers: {
@@ -94,35 +71,26 @@ function createStatus() {
         var info = JSON.parse(body);
         sha = info.head.sha;
       }
-      console.log(repoOwner);
-      var data = {
-        sha : sha,
-        owner : repoOwner,
-        repo : repository,
-        target_url : prUrl,
-        description : des,
-        state : state
-      };
-    }
+        github.repos.createStatus(
+          repoOwner,
+          repository,
+          sha,
+          state,
+          function(err, res) {
+            statusInPr.stop();
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+      }
 
     request(options, prResponse);
 
     var statusInPr = new Spinner('Creating status...');
     statusInPr.start();
-
-    github.repos.createStatus(
-      data,
-      function(err, res) {
-        statusInPr.stop();
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
   })
   .catch(function(error){
-      // status.stop();
-      // statusInPr.stop();
     console.log('eof error \n');
     console.log(error);
   });
