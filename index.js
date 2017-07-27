@@ -17,7 +17,7 @@ function createStatus() {
     {
       name: 'input',
       type: 'input',
-      message: 'Syntax: github_token=yourToken <state> <url_of_pr> <description:optional>',
+      message: 'Syntax: github_token=yourToken <state> <pr_url> <description:optional>',
       validate: function( value ) {
         if (value.length) {
           return true;
@@ -34,41 +34,17 @@ function createStatus() {
     var get_token = inputString[0].split('=');
     var user_token = get_token[1];
     var state = inputString[1];
-    var prUrl = inputString[2];
-    var url = inputString[2].split('/');
-    var repoOwner = url[3];
-    console.log(repoOwner);
-    var repository = url[4];
-    var pullRequestNumber = url[6];
-    var des = inputString[3];
-    var sha = '';
-    var data = {};
-
-    // githubTokenUser(user_token).then(data => {
-        // console.log(data);
-        //=> {login: johndoe, id: '1', ...}
-    // });
-
-    // Creating a spinner
-    var status = new Spinner('Authenticating you, please wait...');
-    status.start();
-
-    //  basic authentication prior to trying to obtain an OAuth token
-    github.authenticate({
-      type: "token",
-      token: user_token
-    });
-
-    var options = {
-      url: 'https://api.github.com/repos/' + repoOwner + '/' + repository + '/pulls/' + pullRequestNumber,
-      headers: {
-        'User-Agent': 'sohini-roy'
-      }
-    };
+    var repo_url = inputString[2].split('/');
+    var repoOwner = repo_url[3];
+    var repository = repo_url[4];
+    console.log(repo_url);
+    var tokenUser = "";
+    var sha = "";
 
     function prResponse(error, response, body) {
       if (!error && response.statusCode == 200) {
         var info = JSON.parse(body);
+        console.log(info.head.sha);
         sha = info.head.sha;
       }
         github.repos.createStatus(
@@ -77,18 +53,43 @@ function createStatus() {
           sha,
           state,
           function(err, res) {
-            statusInPr.stop();
+            if(res){
+              console.log(res);
+              github.repos.get({
+                repoOwner,
+                repository,
+                function(err, res){
+                  console.log("inside get_repo");
+                  if(res){
+                    console.log(res);
+                  }
+                  if(err){
+                    console.log("get_repo error");
+                    console.log(err);
+                  }
+                }
+              });
+            }
             if (err) {
+              console.log("create status error");
               console.log(err);
             }
           }
         );
       }
 
-    request(options, prResponse);
+    githubTokenUser(user_token).then(data => {
+        tokenUser = data.login;
 
-    var statusInPr = new Spinner('Creating status...');
-    statusInPr.start();
+        github.authenticate({
+          type: "token",
+          token: user_token
+        },function(){
+          console.log("authenticate callback function");
+          request(options, prResponse);
+        });
+    });
+
   })
   .catch(function(error){
     console.log('eof error \n');
