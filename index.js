@@ -80,27 +80,29 @@ function createStatus() {
         github.repos.createStatus(
           input,
           function(err, res) {
+            if (err) {
+              console.log("error");
+              console.log(err);
+              return ;
+            }
             if(res){
               console.log("Response");
               console.log(JSON.parse(res));
+              github.repos.get({
+                inputRepo,
+                function(err, res){
+                  console.log("inside get_repo");
+                  if(err){
+                    console.log("get_repo error");
+                    console.log(err);
+                    return ;
+                  }
+                  if(res){
+                    console.log(JSON.parse(res));
+                  }
+                }
+              });
             }
-            github.repos.get({
-              inputRepo,
-              function(err, res){
-                console.log("inside get_repo");
-                if(res){
-                  console.log(JSON.parse(res));
-                }
-                if(err){
-                  console.log("get_repo error");
-                  console.log(err);
-                }
-              }
-            });
-          }
-          if (err) {
-            console.log("error");
-            console.log(err);
           }
         }
       );
