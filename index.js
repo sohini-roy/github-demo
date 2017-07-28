@@ -9,7 +9,6 @@ var github      = new GitHubApi({
   version: '3.0.0'
 });
 
-// function trying to set state for the Pull Request
 function createStatus() {
   var argv = require('minimist')(process.argv.slice(4));
 
@@ -38,7 +37,6 @@ function createStatus() {
     var repoOwner = repo_url[3];
     var repository = repo_url[4];
     var pullRequestNumber = repo_url[6];
-    // var tokenUser = "";
     var sha = "";
     var options = {
       url: 'https://api.github.com/repos/' + repoOwner + '/' + repository + '/pulls/' + pullRequestNumber,
@@ -69,42 +67,42 @@ function createStatus() {
         request(options, prResponse);
     });
 
-    request(options, prResponse);
-
     function prResponse(error, response, body) {
       if (!error && response.statusCode == 200) {
         var info = JSON.parse(body);
         console.log(info.head.sha);
         sha = info.head.sha;
       }
-        github.repos.createStatus(
-          input,
-          function(err, res) {
-            if(res){
-              console.log("Response");
-              console.log(JSON.parse(res));
-            }
+      github.repos.createStatus(
+        input,
+        function(err, res) {
+          if (err) {
+            console.log("error");
+            console.log(err);
+            return ;
+          }
+          if(res){
+            console.log("Response");
+            console.log(JSON.parse(res));
             github.repos.get({
               inputRepo,
               function(err, res){
                 console.log("inside get_repo");
-                if(res){
-                  console.log(JSON.parse(res));
-                }
                 if(err){
                   console.log("get_repo error");
                   console.log(err);
+                  return ;
+                }
+                if(res){
+                  console.log("get_repo response");
+                  console.log(res);
                 }
               }
             });
           }
-          if (err) {
-            console.log("error");
-            console.log(err);
-          }
         }
       );
-      // }
+    }
 
   })
   .catch(function(error){
