@@ -48,7 +48,7 @@ function createStatus() {
       'owner': repoOwner,
       'repo' : repository,
       'sha' : '',
-      'state' : 'pending'
+      'state' : state
     }
     console.log(input);
     var inputRepo = {
@@ -69,6 +69,7 @@ function createStatus() {
     });
 
     function prResponse(error, response, body) {
+      console.log("inside prResponse");
       if (!error && response.statusCode == 200) {
         var info = JSON.parse(body);
         // console.log(info.head.sha);
