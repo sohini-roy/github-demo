@@ -94,7 +94,6 @@ function createStatus() {
                   return ;
                 }
                 if(res){
-                  console.log("get_repo response");
                   console.log(res);
                 }
               }
