@@ -47,7 +47,7 @@ function createStatus() {
     var input = {
       'owner': repoOwner,
       'repo' : repository,
-      'sha' : '0570f70f4f6d8b98a4b146ae87c528f4369c8efb',
+      'sha' : '',
       'state' : 'pending'
     }
     console.log(input);
@@ -55,6 +55,7 @@ function createStatus() {
       'owner': repoOwner,
       'repo': repository
     }
+    console.log(inputRepo);
 
     githubTokenUser(user_token).then(data => {
         // tokenUser = data.login;
@@ -70,8 +71,8 @@ function createStatus() {
     function prResponse(error, response, body) {
       if (!error && response.statusCode == 200) {
         var info = JSON.parse(body);
-        console.log(info.head.sha);
-        sha = info.head.sha;
+        // console.log(info.head.sha);
+        input.sha = info.head.sha;
       }
       github.repos.createStatus(
         input,
@@ -82,22 +83,26 @@ function createStatus() {
             return ;
           }
           if(res){
+            console.log(input);
             console.log("Response");
-            console.log(JSON.parse(res));
-            github.repos.get({
+            console.log(res);
+            github.repos.get(
               inputRepo,
               function(err, res){
                 console.log("inside get_repo");
+                console.log(inputRepo);
                 if(err){
                   console.log("get_repo error");
+                  console.log(inputRepo);
                   console.log(err);
                   return ;
                 }
                 if(res){
+                  console.log("get_repo response");
                   console.log(res);
                 }
               }
-            });
+            );
           }
         }
       );
