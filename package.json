@@ -1,5 +1,5 @@
 {
-  "name": "github-demo",
+  "name": "github-set-pr-status",
   "version": "1.0.0",
   "description": "set state to a commit",
   "main": "index.js",
