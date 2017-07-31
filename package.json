@@ -22,14 +22,12 @@
     },
     "homepage": "https://github.com/sohini-roy/github-demo#readme",
     "dependencies": {
-        "clui": "^0.3.6",
         "github": "^9.2.0",
         "github-token-user": "^3.0.0",
-        "inquirer": "^3.2.0",
         "minimist": "^1.2.0",
         "request": "^2.81.0"
     },
     "bin": {
-        "github-set-pr-status": "index.js"
+        "github-set-pr-status": "./index.js"
     }
 }
