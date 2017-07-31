@@ -9,7 +9,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/sohini-roy/github-demo.git"
+        "url": "git+https://github.com/sohini-roy/github-set-pr-status.git"
     },
     "keywords": [
         "Git",
@@ -18,18 +18,16 @@
     "author": "sohini-roy",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/sohini-roy/github-demo/issues"
+        "url": "https://github.com/sohini-roy/github-set-pr-status/issues"
     },
-    "homepage": "https://github.com/sohini-roy/github-demo#readme",
+    "homepage": "https://github.com/sohini-roy/github-set-pr-status#readme",
     "dependencies": {
-        "clui": "^0.3.6",
         "github": "^9.2.0",
         "github-token-user": "^3.0.0",
-        "inquirer": "^3.2.0",
         "minimist": "^1.2.0",
         "request": "^2.81.0"
     },
     "bin": {
-        "github-set-pr-status": "index.js"
+        "github-set-pr-status": "./index.js"
     }
 }

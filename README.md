@@ -2,7 +2,7 @@
 It is a Command Line Tool through which you could modify the status of a repo.
 
 #SYNTAX:
-github_token=<yourTokenHere> <state> <pr_URL> <description: optional>
+github-set-pr-status <yourGithubUserTokenHere> <pr_URL> <state> <description: optional>
 
 #How it works?
 
