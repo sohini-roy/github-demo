@@ -1,10 +1,20 @@
 # github-set-pr status
-It is a Command Line Tool through which you could modify the status of a repo.
 
-#SYNTAX:
-github-set-pr-status <yourGithubUserTokenHere> <pr_URL> <state> <description: optional>
+A Command Line Tool to modify a pull request status
 
-#How it works?
+## Install
+
+```shell
+npm install -g github-set-pr-status
+```
+
+## Usage
+
+```shell
+github-set-pr-status <token> <PR URL> <state> <description: optional>
+```
+
+## How does it work?
 
 1. Authenticate the User
 2. Extract the Owner of the repo, repo name, Pull Request Number, Commit sha
